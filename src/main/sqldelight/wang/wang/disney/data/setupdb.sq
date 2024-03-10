@@ -1,0 +1,18 @@
+-- create table DisneyCharacter
+CREATE TABLE IF NOT EXISTS `DisneyCharacter` (
+    `id` INTEGER NOT NULL,
+    `createdAt` TEXT NOT NULL,
+    `imageUrl` TEXT,
+    `name` TEXT NOT NULL,
+    `url` TEXT,
+    PRIMARY KEY(`id`)
+);
+
+insert:
+INSERT OR REPLACE INTO DisneyCharacter (id, createdAt, imageUrl, name, url) VALUES (?, ?, ?, ?, ?);
+
+insertItem:
+INSERT INTO DisneyCharacter (id, createdAt, imageUrl, name, url) VALUES ?;
+
+selectAll:
+SELECT * FROM DisneyCharacter;

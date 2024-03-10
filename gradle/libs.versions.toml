@@ -1,0 +1,80 @@
+[versions]
+agp = "8.2.2"
+kotlin = "1.9.22"
+coroutines = "1.8.0"
+
+junit = "4.13.2"
+compose-bom = "2024.02.00"
+compose = "1.5.12"
+navigation = "2.7.7"
+coil = "3.0.0-alpha04"
+sqldelight = "2.0.1"
+
+slf4j = "2.0.12"
+
+ktor = "2.3.8"
+koin = "3.5.3"
+
+[libraries]
+
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "coroutines" }
+
+compose-full = { group = "org.jetbrains.compose", name = "compose-full", version.ref = "compose" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+material3 = { module = "org.jetbrains.compose.material3:material3-desktop", version = "1.5.12" }
+
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
+
+navigation-common = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigation" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+
+coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-core = { module = "io.coil-kt.coil3:coil-network-core", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil" }
+
+okio = { group = "com.squareup.okio", name = "okio", version = "3.8.0" }
+
+kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
+
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+sqldelight-driver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
+sqldelight-coroutines = { group = "app.cash.sqldelight", name = "coroutines-extensions-jvm", version.ref = "sqldelight" }
+
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version = "1.1.2" }
+koin-logger-slf4j = { group = "io.insert-koin", name = "koin-logger-slf4j", version.ref = "koin" }
+
+[bundles]
+
+coroutines = ["coroutines-core", "coroutines-swing"]
+
+coil = ["coil-core", "coil-compose", "coil-network-core", "coil-network-ktor"]
+navigation = ["navigation-common", "navigation-compose"]
+sqldelight = ["sqldelight-driver", "sqldelight-coroutines"]
+ktor = ["ktor-client-core", "ktor-client-logging", "ktor-client-serialization", "ktor-client-cio", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
+
+koin = ["koin-core", "koin-compose", "koin-logger-slf4j"]
+
+slf4j = ["slf4j-api", "slf4j-simple"]
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinKsp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

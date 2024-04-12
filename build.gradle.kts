@@ -17,10 +17,6 @@ repositories {
 }
 
 dependencies {
-    // Note, if you develop a library, you should use compose.desktop.common.
-    // compose.desktop.currentOs should be used in launcher-sourceSet
-    // (in a separate module for demo project and in testMain).
-    // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
     implementation(libs.compose.full)
     implementation(libs.material3)
@@ -31,7 +27,10 @@ dependencies {
     implementation(libs.bundles.ktor)
     implementation(libs.bundles.koin)
     implementation(libs.kotlin.serialization)
+    implementation(libs.kotlin.datetime)
     implementation(libs.bundles.sqldelight)
+//    implementation(libs.bundles.navigation)
+    implementation(libs.bundles.voyager)
 }
 
 compose.desktop {

@@ -16,3 +16,6 @@ INSERT INTO DisneyCharacter (id, createdAt, imageUrl, name, url) VALUES ?;
 
 selectAll:
 SELECT * FROM DisneyCharacter;
+
+selectById:
+SELECT * FROM DisneyCharacter WHERE id = ?;

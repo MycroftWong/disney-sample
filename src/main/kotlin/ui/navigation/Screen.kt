@@ -1,4 +1,4 @@
-package com.example.conposesample.ui.navigation
+package ui.navigation
 
 sealed interface Screen {
     val routeName: String

@@ -5,18 +5,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import di.coreModule
+import cafe.adriel.voyager.navigator.Navigator
+import di.CoreModule
+import di.ViewModelModule
 import org.koin.compose.KoinApplication
-import ui.disney.DisneyScreen
+import ui.disney.screen.DisneyScreen
 
 @Preview
 @Composable
 fun App() {
     KoinApplication(application = {
-        modules(coreModule())
+        modules(CoreModule(), ViewModelModule())
     }) {
         MaterialTheme {
-            DisneyScreen(modifier = Modifier.fillMaxSize())
+            Navigator(DisneyScreen())
         }
     }
 }

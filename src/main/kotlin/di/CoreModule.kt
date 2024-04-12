@@ -3,7 +3,6 @@ package di
 import api.ApiService
 import api.ApiServiceImpl
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import ui.disney.DisneyViewModel
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -12,9 +11,10 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import wang.mycroft.disney.data.Database
-import wang.wang.disney.data.SetupdbQueries
+import wang.wang.disney.data.DisneyCharacterQueries
+import wang.wang.disney.data.FavoriteCharacterQueries
 
-fun coreModule() = module {
+fun CoreModule() = module {
     single<HttpClient> {
         HttpClient(CIO) {
             install(Logging) {
@@ -34,18 +34,18 @@ fun coreModule() = module {
         ApiServiceImpl(get())
     }
 
-    single<DisneyViewModel> {
-        DisneyViewModel(get(), get())
-    }
-
     single<Database> {
         val driver = JdbcSqliteDriver("jdbc:sqlite:disney.db")
         Database.Schema.create(driver)
         Database(driver)
     }
 
-    single<SetupdbQueries> {
-        get<Database>().setupdbQueries
+    single<DisneyCharacterQueries> {
+        get<Database>().disneyCharacterQueries
+    }
+
+    single<FavoriteCharacterQueries> {
+        get<Database>().favoriteCharacterQueries
     }
 
 }

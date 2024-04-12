@@ -1,21 +1,13 @@
-package ui.disney
+package ui.disney.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,26 +18,46 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import ui.theme.DesktopSampleTheme
-import org.koin.compose.koinInject
+import ui.disney.DisneyCharacterItem
+import ui.disney.viewmodel.DisneyViewModel
+
+class DisneyScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        DisneyScreen(getScreenModel()) { characterId ->
+            navigator.push(DisneyDetailScreen(characterId))
+        }
+    }
+
+}
 
 @Composable
 fun DisneyScreen(
+    viewModel: DisneyViewModel,
     modifier: Modifier = Modifier,
-    viewModel: DisneyViewModel = koinInject(),
+    navigateToDetail: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     Box(modifier = modifier) {
-        DisneyContent(Modifier.fillMaxSize(), uiState) { viewModel.refresh() }
+        DisneyContent(Modifier.fillMaxSize(), uiState, { viewModel.refresh() }, navigateToDetail)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun DisneyContent(modifier: Modifier = Modifier, uiState: DisneyViewModel.UiState, onRefresh: () -> Unit) {
+private fun DisneyContent(
+    modifier: Modifier = Modifier,
+    uiState: DisneyViewModel.UiState,
+    onRefresh: () -> Unit,
+    navigateToDetail: (Long) -> Unit
+) {
     val refreshState = rememberPullRefreshState(uiState.loading, onRefresh = onRefresh)
     Box(modifier = modifier.pullRefresh(refreshState)) {
         LazyColumn(Modifier.fillMaxSize()) {
@@ -55,7 +67,9 @@ private fun DisneyContent(modifier: Modifier = Modifier, uiState: DisneyViewMode
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                )
+                ) {
+                    navigateToDetail(it)
+                }
             }
             if (uiState.disneyCharacterItems.isEmpty()) {
                 item {
@@ -78,8 +92,10 @@ private fun DisneyContent(modifier: Modifier = Modifier, uiState: DisneyViewMode
 }
 
 @Composable
-private fun DisneyItem(item: DisneyCharacterItem, modifier: Modifier) {
-    Row(modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+private fun DisneyItem(item: DisneyCharacterItem, modifier: Modifier, onItemClick: (Long) -> Unit) {
+    Button(onClick = {
+        onItemClick(item.character.id)
+    }, modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         if (item.character.imageUrl != null) {
             AsyncImage(
                 model = item.character.imageUrl,
@@ -101,15 +117,3 @@ private fun DisneyItem(item: DisneyCharacterItem, modifier: Modifier) {
     }
 }
 
-//@Preview(showBackground = true)
-@Composable
-fun DisneyContentPreview() {
-    DesktopSampleTheme {
-        DisneyContent(
-            Modifier.fillMaxSize(),
-            DisneyViewModel.UiState(loading = true, disneyCharacterItems = emptyList())
-        ) {
-
-        }
-    }
-}

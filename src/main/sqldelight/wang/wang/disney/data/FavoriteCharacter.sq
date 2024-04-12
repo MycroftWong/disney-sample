@@ -1,0 +1,16 @@
+-- create table FavoriteCharacter
+CREATE TABLE IF NOT EXISTS `FavoriteCharacter` (
+    `characterId` INTEGER NOT NULL,
+    `favorite` INTEGER NOT NULL,
+    `createdAt` TEXT NOT NULL,
+    PRIMARY KEY(`characterId`)
+);
+
+insert:
+INSERT OR REPLACE INTO FavoriteCharacter (characterId, favorite, createdAt) VALUES (?, ?, ?);
+
+selectAll:
+SELECT * FROM FavoriteCharacter;
+
+selectById:
+SELECT * FROM FavoriteCharacter WHERE characterId = ?;

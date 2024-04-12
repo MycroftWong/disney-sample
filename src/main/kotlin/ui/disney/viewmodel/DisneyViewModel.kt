@@ -1,32 +1,37 @@
-package ui.disney
+package ui.disney.viewmodel
 
 import api.ApiService
 import app.cash.sqldelight.coroutines.asFlow
-import kotlinx.coroutines.CoroutineScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import wang.wang.disney.data.SetupdbQueries
+import ui.base.ViewModel
+import ui.disney.DisneyCharacterItem
+import wang.wang.disney.data.DisneyCharacterQueries
+import wang.wang.disney.data.FavoriteCharacterQueries
 
-class DisneyViewModel(private val apiService: ApiService, private val setupdbQueries: SetupdbQueries) {
-
-    private val viewModelScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+class DisneyViewModel(
+    private val apiService: ApiService,
+    private val disneyCharacterQueries: DisneyCharacterQueries,
+    private val favoriteCharacterQueries: FavoriteCharacterQueries
+) : ViewModel() {
 
     private val _loading = MutableStateFlow(false)
-    private val _favoriteCharacters = MutableStateFlow(emptyList<Long>())
 
     val uiState: StateFlow<UiState> = combine(
         _loading,
-        setupdbQueries.selectAll().asFlow().map { it.executeAsList() },
-        _favoriteCharacters
+        disneyCharacterQueries.selectAll().asFlow().map { it.executeAsList() },
+        favoriteCharacterQueries.selectAll().asFlow().map { it.executeAsList() }
     ) { loading, characters, favoriteCharacters ->
+        val favoriteIds = favoriteCharacters.filter { it.favorite == 1L }.map { it.characterId }
         UiState(loading, characters
             .map { item ->
-                DisneyCharacterItem(item, favoriteCharacters.contains(item.id))
+                DisneyCharacterItem(item, favoriteIds.contains(item.id))
             })
     }.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(1000), UiState(false, emptyList())
+        screenModelScope, SharingStarted.WhileSubscribed(1000), UiState(false, emptyList())
     )
 
     init {
@@ -38,14 +43,14 @@ class DisneyViewModel(private val apiService: ApiService, private val setupdbQue
     }
 
     private fun loadCharacters() {
-        viewModelScope.launch {
+        screenModelScope.launch {
             _loading.value = true
             try {
                 val characters = apiService.loadCharacters(1)
                 withContext(Dispatchers.IO) {
-                    setupdbQueries.transaction {
+                    disneyCharacterQueries.transaction {
                         characters.data.forEach { character ->
-                            setupdbQueries.insert(
+                            disneyCharacterQueries.insert(
                                 character.id,
                                 character.createdAt,
                                 character.imageUrl,

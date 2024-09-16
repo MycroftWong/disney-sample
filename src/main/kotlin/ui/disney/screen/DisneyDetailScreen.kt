@@ -4,8 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
@@ -26,7 +25,7 @@ class DisneyDetailScreen(private val characterId: Long) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val disneyDetailViewModel = getScreenModel<DisneyDetailViewModel>(parameters = {
+        val disneyDetailViewModel = koinScreenModel<DisneyDetailViewModel>(parameters = {
             parametersOf(characterId)
         })
         DisneyDetailScreen(disneyDetailViewModel) {
@@ -41,9 +40,9 @@ fun DisneyDetailScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     Box(modifier = modifier) {
-        DisneyDetailContent(Modifier.fillMaxSize(), uiState, onBack)
+        DisneyDetailContent(Modifier.fillMaxSize(), state, onBack)
     }
 }
 
@@ -51,33 +50,26 @@ fun DisneyDetailScreen(
 @Composable
 fun DisneyDetailContent(
     modifier: Modifier = Modifier,
-    uiState: DisneyDetailViewModel.UiState,
+    state: DisneyDetailViewModel.UiState,
     onBack: () -> Unit
 ) {
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text("Disney") },
+            title = { Text(state.character?.name ?: "Disney") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         )
     }) {
-        if (uiState.character != null) {
+        if (state.character != null) {
             Column(modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
                 AsyncImage(
-                    model = uiState.character.imageUrl,
-                    contentDescription = uiState.character.name,
+                    model = state.character.imageUrl,
+                    contentDescription = state.character.name,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                     contentScale = ContentScale.FillWidth
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = uiState.character.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
                 )
             }
         } else {

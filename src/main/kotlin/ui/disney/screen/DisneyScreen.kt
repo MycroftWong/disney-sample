@@ -1,10 +1,11 @@
 package ui.disney.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Switch
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -20,7 +21,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
@@ -31,7 +32,7 @@ class DisneyScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        DisneyScreen(getScreenModel()) { characterId ->
+        DisneyScreen(koinScreenModel()) { characterId ->
             navigator.push(DisneyDetailScreen(characterId))
         }
     }
@@ -39,14 +40,16 @@ class DisneyScreen : Screen {
 }
 
 @Composable
-fun DisneyScreen(
+internal fun DisneyScreen(
     viewModel: DisneyViewModel,
     modifier: Modifier = Modifier,
-    navigateToDetail: (Long) -> Unit
+    navigateToDetail: (Long) -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     Box(modifier = modifier) {
-        DisneyContent(Modifier.fillMaxSize(), uiState, { viewModel.refresh() }, navigateToDetail)
+        DisneyContent(Modifier.fillMaxSize(), state, { viewModel.refresh() }, navigateToDetail) { characterId ->
+            viewModel.toggleFavorite(characterId)
+        }
     }
 }
 
@@ -54,36 +57,61 @@ fun DisneyScreen(
 @Composable
 private fun DisneyContent(
     modifier: Modifier = Modifier,
-    uiState: DisneyViewModel.UiState,
+    state: DisneyViewModel.UiState,
     onRefresh: () -> Unit,
-    navigateToDetail: (Long) -> Unit
+    navigateToDetail: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit
 ) {
-    val refreshState = rememberPullRefreshState(uiState.loading, onRefresh = onRefresh)
+    val loadingCharacters = (state == DisneyViewModel.UiState.Loading)
+    val refreshState = rememberPullRefreshState(loadingCharacters, onRefresh = onRefresh)
+
     Box(modifier = modifier.pullRefresh(refreshState)) {
         LazyColumn(Modifier.fillMaxSize()) {
-            items(uiState.disneyCharacterItems.size, key = { uiState.disneyCharacterItems[it].character.id }) {
-                DisneyItem(
-                    item = uiState.disneyCharacterItems[it],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    navigateToDetail(it)
+            when (state) {
+                DisneyViewModel.UiState.Loading -> {
+                    item {
+                        Box(Modifier.fillParentMaxSize()) {
+                            Text(
+                                text = "Loading characters...",
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
                 }
-            }
-            if (uiState.disneyCharacterItems.isEmpty()) {
-                item {
-                    Box(Modifier.fillParentMaxSize()) {
-                        Text(
-                            text = "No characters found",
-                            modifier = Modifier.align(Alignment.Center)
+
+                is DisneyViewModel.UiState.Data -> {
+                    items(
+                        state.disneyCharacterItems.size,
+                        key = { state.disneyCharacterItems[it].character.id }) { index ->
+                        DisneyItem(
+                            item = state.disneyCharacterItems[index],
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            onItemClick = {
+                                navigateToDetail(it)
+                            },
+                            onFavoriteClick = { characterId ->
+                                onFavoriteClick(characterId)
+                            }
                         )
                     }
+                    if (state.disneyCharacterItems.isEmpty()) {
+                        item {
+                            Box(Modifier.fillParentMaxSize()) {
+                                Text(
+                                    text = "No characters found",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                        }
+                    }
+
                 }
             }
         }
         PullRefreshIndicator(
-            uiState.loading,
+            loadingCharacters,
             refreshState,
             Modifier.align(Alignment.TopCenter),
             contentColor = Color(0xFF0099CC)
@@ -92,10 +120,15 @@ private fun DisneyContent(
 }
 
 @Composable
-private fun DisneyItem(item: DisneyCharacterItem, modifier: Modifier, onItemClick: (Long) -> Unit) {
-    Button(onClick = {
-        onItemClick(item.character.id)
-    }, modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+private fun DisneyItem(
+    item: DisneyCharacterItem,
+    modifier: Modifier,
+    onItemClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit
+) {
+    Row(modifier
+        .clickable { onItemClick(item.character.id) }
+        .padding(horizontal = 16.dp, vertical = 8.dp)) {
         if (item.character.imageUrl != null) {
             AsyncImage(
                 model = item.character.imageUrl,
@@ -113,6 +146,11 @@ private fun DisneyItem(item: DisneyCharacterItem, modifier: Modifier, onItemClic
             modifier = Modifier
                 .weight(1F)
                 .align(Alignment.CenterVertically)
+        )
+        Switch(
+            checked = item.favorite,
+            onCheckedChange = { onFavoriteClick(item.character.id) },
+            modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
 }

@@ -1,7 +1,8 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+//import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm")
+    id("org.jetbrains.kotlin.plugin.compose")
     kotlin("plugin.serialization")
     id("org.jetbrains.compose")
     id("app.cash.sqldelight")
@@ -22,6 +23,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.bundles.slf4j)
 
+    implementation(libs.kotlin.stdlib)
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.coil)
     implementation(libs.bundles.ktor)
@@ -38,7 +40,7 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+//            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "disney-sample"
             packageVersion = "1.0.0"
         }

@@ -14,3 +14,6 @@ SELECT * FROM FavoriteCharacter;
 
 selectById:
 SELECT * FROM FavoriteCharacter WHERE characterId = ?;
+
+delete:
+DELETE FROM FavoriteCharacter WHERE characterId = ?;

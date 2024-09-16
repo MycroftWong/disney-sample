@@ -1,4 +1,4 @@
-//import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm")
@@ -40,7 +40,7 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-//            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "disney-sample"
             packageVersion = "1.0.0"
         }
